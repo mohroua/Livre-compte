@@ -1,149 +1,170 @@
-      <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<!DOCTYPE html>
+<html lang="fr" dir="ltr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Livre de Compte Fraternel</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --bg: #0b0f1a; --card: #161c2d; --accent: #4f8eff;
-            --green: #00d68f; --red: #ff4d6a; --text: #ffffff;
-        }
-        body { background: var(--bg); color: var(--text); font-family: 'Cairo', sans-serif; margin: 0; padding: 20px; }
-        .card { background: var(--card); padding: 25px; border-radius: 24px; text-align: center; margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.05); }
-        .amount { font-size: 3rem; font-weight: bold; margin: 10px 0; letter-spacing: -1px; }
-        .pos { color: var(--green); } .neg { color: var(--red); }
-        .status-text { font-size: 0.9rem; margin-bottom: 15px; opacity: 0.8; }
-        input { width: 100%; padding: 15px; margin-bottom: 10px; border-radius: 12px; border: 1px solid #2a3447; background: #070a13; color: white; box-sizing: border-box; font-family: 'Cairo'; }
-        .btn-group { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 10px; }
-        button { padding: 15px; border-radius: 14px; border: none; cursor: pointer; font-weight: bold; font-family: 'Cairo'; transition: 0.3s; }
-        .btn-me { background: var(--green); color: #000; }
-        .btn-bro { background: var(--red); color: #fff; }
-        .tx-item { background: var(--card); padding: 15px; border-radius: 16px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
-        .tx-info { display: flex; flex-direction: column; text-align: right; }
-        .tx-date { font-size: 0.7rem; opacity: 0.5; }
-        .sync-indicator { font-size: 0.8rem; color: var(--green); margin-bottom: 10px; display: none; }
+        /* تصميمك الأصلي المفضل */
+        :root { --bg: #070b15; --card: #121826; --primary: #3d82f6; --green: #10b981; --red: #ef4444; --text: #f8fafc; }
+        body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; margin: 0; padding: 20px; text-align: left; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+        .main-card { background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); padding: 30px; border-radius: 28px; border: 1px solid rgba(255,255,255,0.05); margin-bottom: 25px; box-shadow: 0 20px 50px rgba(0,0,0,0.3); }
+        .balance-label { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1.5px; opacity: 0.6; margin-bottom: 10px; }
+        .balance-amount { font-size: 3.5rem; font-weight: 800; margin-bottom: 10px; }
+        .status-badge { font-size: 0.9rem; padding: 6px 16px; border-radius: 100px; display: inline-block; background: rgba(255,255,255,0.05); }
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 25px; padding-top: 25px; border-top: 1px solid rgba(255,255,255,0.1); }
+        .stat-item { text-align: left; }
+        .stat-val { font-weight: 600; font-size: 1.2rem; margin-top: 5px; }
+        .stat-me { color: var(--green); } .stat-bro { color: var(--red); }
+        .history-title { font-size: 1.1rem; margin: 30px 0 15px; opacity: 0.8; }
+        .tx-card { background: var(--card); padding: 18px; border-radius: 20px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; border: 1px solid rgba(255,255,255,0.03); }
+        .tx-icon { width: 45px; height: 45px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; }
+        .icon-up { background: rgba(16, 185, 129, 0.1); color: var(--green); }
+        .icon-down { background: rgba(239, 68, 68, 0.1); color: var(--red); }
+        .add-btn { position: fixed; bottom: 30px; right: 30px; width: 65px; height: 65px; background: var(--primary); color: white; border-radius: 22px; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; box-shadow: 0 15px 30px rgba(61,130,246,0.4); border: none; cursor: pointer; }
+        /* Modal */
+        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: none; align-items: center; justify-content: center; z-index: 100; backdrop-filter: blur(10px); }
+        .modal.active { display: flex; }
+        .modal-content { background: #1e293b; width: 90%; max-width: 400px; padding: 30px; border-radius: 32px; }
+        input { width: 100%; padding: 18px; margin-bottom: 15px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.1); background: #0f172a; color: white; font-size: 1rem; box-sizing: border-box; }
+        .btn-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
     </style>
 </head>
 <body>
 
-    <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-        <h2 style="margin:0;">حسابات الإخوة 🤝</h2>
-        <div id="sync-status" class="sync-indicator">جارِ المزامنة...</div>
+    <div class="header">
+        <div>
+            <div style="font-size: 0.7rem; opacity: 0.5; letter-spacing: 2px;">LIVRE DE COMPTE</div>
+            <div style="font-size: 1.5rem; font-weight: 800;">Fraternel 🤝</div>
+        </div>
+        <div id="sync-icon" style="color: #10b981; font-size: 0.8rem; display:none;">● Cloud Sync</div>
     </div>
 
-    <div id="balance-card" class="card">
-        <div id="bc-status" class="status-text">جاري تحميل البيانات...</div>
-        <div id="bc-amount" class="amount">0.00</div>
-        <div style="font-size: 0.8rem; opacity: 0.6;">DZD</div>
-    </div>
+    <div class="main-card">
+        <div class="balance-label">Solde Actuel</div>
+        <div id="main-balance" class="balance-amount">0.00 <span style="font-size: 1rem; opacity:0.4;">DZD</span></div>
+        <div id="status-text" class="status-badge">— Comptes équilibrés ✓</div>
 
-    <div class="card">
-        <input type="number" id="inp-amount" placeholder="المبلغ (DZD)">
-        <input type="text" id="inp-reason" placeholder="وصف العملية (اختياري)">
-        <div class="btn-group">
-            <button class="btn-me" onclick="addEntry('me')">أنا دفعت</button>
-            <button class="btn-bro" onclick="addEntry('bro')">أخي دفع</button>
+        <div class="stats-grid">
+            <div class="stat-item">
+                <div style="font-size: 0.7rem; opacity: 0.5;">MES DÉPENSES</div>
+                <div id="total-me" class="stat-val stat-me">0 DZD</div>
+            </div>
+            <div class="stat-item">
+                <div style="font-size: 0.7rem; opacity: 0.5;">SES DÉPENSES</div>
+                <div id="total-bro" class="stat-val stat-bro">0 DZD</div>
+            </div>
         </div>
     </div>
 
-    <h3 style="margin-right: 10px;">آخر المعاملات</h3>
-    <div id="home-list"></div>
+    <div class="history-title">Dernières Transactions</div>
+    <div id="tx-list"></div>
+
+    <button class="add-btn" onclick="toggleModal(true)">+</button>
+
+    <div class="modal" id="addModal">
+        <div class="modal-content">
+            <h3 style="margin-top:0">Nouvelle Transaction</h3>
+            <input type="number" id="amt" placeholder="Montant DZD">
+            <input type="text" id="note" placeholder="Description">
+            <div class="btn-row">
+                <button onclick="addEntry('me')" style="background:var(--green); color:white; padding:15px; border-radius:15px; border:none; font-weight:bold;">Payé par moi</button>
+                <button onclick="addEntry('bro')" style="background:var(--red); color:white; padding:15px; border-radius:15px; border:none; font-weight:bold;">Payé par lui</button>
+            </div>
+            <button onclick="toggleModal(false)" style="width:100%; background:none; color:white; opacity:0.5; margin-top:15px; border:none;">Annuler</button>
+        </div>
+    </div>
 
     <script>
+        // مفاتيحك السحابية
         const BIN_ID = '69d6b58caaba882197d9cfc3';
         const API_KEY = '$2a$10$YGnu9GSy841IMPyEr.ExE.QKmCmtDFaoMYkYy6PSBIW2vV09/PpKC';
         const URL = `https://api.jsonbin.io/v3/b/${BIN_ID}`;
 
         let transactions = [];
 
-        // 1. جلب البيانات من السحاب
-        async function initApp() {
-            toggleSyncIcon(true);
+        async function init() {
+            showLoading(true);
             try {
-                const res = await fetch(`${URL}/latest`, { headers: { 'X-Master-Key': API_KEY } });
+                const res = await fetch(`${URL}/latest`, { headers: {'X-Master-Key': API_KEY} });
                 const data = await res.json();
                 transactions = data.record.transactions || [];
-                renderUI();
-            } catch (e) {
-                document.getElementById('bc-status').innerText = "فشل الاتصال بالسحاب!";
-            }
-            toggleSyncIcon(false);
+                render();
+            } catch (e) { alert("Erreur de connexion !"); }
+            showLoading(false);
         }
 
-        // 2. إضافة معاملة جديدة وحفظها سحابياً
         async function addEntry(type) {
-            const amt = document.getElementById('inp-amount').value;
-            const reason = document.getElementById('inp-reason').value || "بدون عنوان";
-            
-            if(!amt) return alert("الرجاء إدخال المبلغ");
+            const amount = document.getElementById('amt').value;
+            const reason = document.getElementById('note').value || "Transaction";
+            if(!amount) return;
 
             const newTx = {
                 type,
-                amount: parseFloat(amt),
+                amount: parseFloat(amount),
                 reason,
-                date: new Date().toLocaleString('ar-DZ', {hour12: true, day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit'})
+                date: new Date().toLocaleDateString('fr-FR', {day:'2-digit', month:'short'})
             };
 
-            transactions.unshift(newTx); // إضافة للأعلى
-            renderUI();
+            transactions.unshift(newTx);
+            render();
+            toggleModal(false);
             
-            // تفريغ الحقول
-            document.getElementById('inp-amount').value = '';
-            document.getElementById('inp-reason').value = '';
-
-            // الحفظ في السحاب
-            toggleSyncIcon(true);
-            try {
-                await fetch(URL, {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json', 'X-Master-Key': API_KEY },
-                    body: JSON.stringify({ transactions })
-                });
-            } catch (e) { alert("فشل الحفظ سحابياً"); }
-            toggleSyncIcon(false);
+            // المزامنة السحابية الفورية
+            showLoading(true);
+            await fetch(URL, {
+                method: 'PUT',
+                headers: {'Content-Type': 'application/json', 'X-Master-Key': API_KEY},
+                body: JSON.stringify({ transactions })
+            });
+            showLoading(false);
         }
 
-        // 3. تحديث الواجهة
-        function renderUI() {
-            let meTotal = 0, broTotal = 0;
-            const list = document.getElementById('home-list');
+        function render() {
+            let me = 0, bro = 0;
+            const list = document.getElementById('tx-list');
             list.innerHTML = '';
 
-            transactions.forEach(tx => {
-                if(tx.type === 'me') meTotal += tx.amount; else broTotal += tx.amount;
-                
+            transactions.forEach(t => {
+                if(t.type === 'me') me += t.amount; else bro += t.amount;
                 list.innerHTML += `
-                    <div class="tx-item">
-                        <div class="tx-info">
-                            <strong>${tx.reason}</strong>
-                            <span class="tx-date">${tx.date}</span>
+                    <div class="tx-card">
+                        <div style="display:flex; align-items:center; gap:15px">
+                            <div class="tx-icon ${t.type === 'me' ? 'icon-up' : 'icon-down'}">
+                                ${t.type === 'me' ? '↗' : '↘'}
+                            </div>
+                            <div>
+                                <div style="font-weight:600">${t.reason}</div>
+                                <div style="font-size:0.7rem; opacity:0.4">${t.date}</div>
+                            </div>
                         </div>
-                        <div style="font-weight:bold; color: ${tx.type === 'me' ? 'var(--green)' : 'var(--red)'}">
-                            ${tx.type === 'me' ? '+' : '-'}${tx.amount}
+                        <div style="font-weight:800; color:${t.type === 'me' ? '#10b981' : '#ef4444'}">
+                            ${t.type === 'me' ? '+' : '-'}${t.amount}
                         </div>
                     </div>`;
             });
 
-            const diff = meTotal - broTotal;
-            const amtEl = document.getElementById('bc-amount');
-            const statusEl = document.getElementById('bc-status');
-
-            amtEl.innerText = Math.abs(diff).toFixed(2);
-            amtEl.className = diff > 0 ? "amount pos" : (diff < 0 ? "amount neg" : "amount");
+            const diff = me - bro;
+            document.getElementById('main-balance').innerHTML = `${Math.abs(diff).toFixed(2)} <span style="font-size: 1rem; opacity:0.4;">DZD</span>`;
+            document.getElementById('total-me').innerText = `${me} DZD`;
+            document.getElementById('total-bro').innerText = `${bro} DZD`;
             
-            if(diff > 0) statusEl.innerText = "أخوك يدين لك بـ";
-            else if(diff < 0) statusEl.innerText = "أنت مدين لأخيك بـ";
-            else statusEl.innerText = "الحسابات متساوية 🤝";
+            const st = document.getElementById('status-text');
+            if(diff > 0) { st.innerText = "↑ Ton frère te doit de l'argent"; st.style.color = "#10b981"; }
+            else if(diff < 0) { st.innerText = "↓ Tu dois de l'argent"; st.style.color = "#ef4444"; }
+            else { st.innerText = "— Comptes équilibrés ✓"; st.style.color = "inherit"; }
         }
 
-        function toggleSyncIcon(show) {
-            document.getElementById('sync-status').style.display = show ? 'block' : 'none';
+        function toggleModal(s) { 
+            document.getElementById('addModal').classList.toggle('active', s);
+            if(!s) { document.getElementById('amt').value=''; document.getElementById('note').value=''; }
         }
 
-        // انطلاق!
-        window.onload = initApp;
+        function showLoading(s) { document.getElementById('sync-icon').style.display = s ? 'block' : 'none'; }
+
+        window.onload = init;
     </script>
 </body>
 </html>
